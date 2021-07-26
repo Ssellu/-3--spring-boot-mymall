@@ -3,25 +3,14 @@ package com.megait.mymall.service;
 import com.megait.mymall.domain.Address;
 import com.megait.mymall.domain.Member;
 import com.megait.mymall.domain.MemberType;
-import com.megait.mymall.validation.SignUpFormValidator;
-import com.megait.mymall.validation.SignUpForm;
 import com.megait.mymall.repository.MemberRepository;
+import com.megait.mymall.validation.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
-import javax.validation.Validator;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Service
 @Validated

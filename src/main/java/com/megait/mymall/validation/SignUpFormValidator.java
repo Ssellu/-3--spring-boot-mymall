@@ -14,7 +14,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SignUpFormValidator implements Validator {
+public class  SignUpFormValidator implements Validator {
 
     private final MemberRepository repository;
 
@@ -31,5 +31,4 @@ public class SignUpFormValidator implements Validator {
             errors.rejectValue("email", "duplicate.email", "이미 가입된 이메일입니다.");
         }
     }
-
 }

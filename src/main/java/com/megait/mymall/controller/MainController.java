@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import javax.validation.Validator;
+import java.util.Optional;
 
 @Controller
 @Slf4j // log 변수
@@ -61,5 +63,24 @@ public class MainController {
         memberService.login(member);
 
         return "redirect:/"; // "/"로 리다이렉트
+    }
+
+    @GetMapping("/email-check-token")
+    @Transactional
+    public String emailCheckToken(String token, String email){
+        Optional<Member> optional = memberRepository.findByEmail(email);
+        if(optional.isEmpty()){
+            log.info("Email does not exist.");
+            return "redirect:/";
+        }
+
+        Member member = optional.get();
+        if(!token.equals(member.getEmailCheckToken())){
+            log.info("Token does not match.");
+            return "redirect:/";
+        }
+        log.info("Success!");
+        member.setEmailVerified(true);
+        return "redirect:/";
     }
 }

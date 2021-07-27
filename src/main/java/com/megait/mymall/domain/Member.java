@@ -1,11 +1,13 @@
 package com.megait.mymall.domain;
 
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -40,4 +42,13 @@ public class Member {
     @Embedded
     private Address address;
 
+
+//  JPA Repository 가 아닌 다른 메서드에서
+//  디비 변경을 해야 한다면 그 메서드에 @Transactional 선언.
+//  (spring-data-jpa)
+//  import org.springframework.transaction.annotation.Transactional
+    @Transactional
+    public void generateEmailCheckToken(){
+        emailCheckToken = UUID.randomUUID().toString();
+    }
 }

@@ -15,34 +15,38 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Validated
 @RequiredArgsConstructor
 @Slf4j
-public class MemberService {
-
+public class MemberService implements UserDetailsService {
+    // UserDetailsService : 로그인, 회원가입 등의 회원을 다루는 서비스에 구현하는 인터페이스
     private final MemberRepository memberRepository;
 
     private final ConsoleMailSender consoleMailSender;
 
     private final EmailService emailService;
 
+    private final PasswordEncoder passwordEncoder;
+
     public Member processNewMember(SignUpForm signUpForm) {
 
         // 올바른 form인 경우 DB 저장
         Member member = Member.builder()
                 .email(signUpForm.getEmail())
-                .password(signUpForm.getPassword())
+                .password(passwordEncoder.encode(signUpForm.getPassword()))
                 .address(Address.builder()
                         .city(signUpForm.getCity())
                         .street(signUpForm.getStreet())
@@ -75,5 +79,32 @@ public class MemberService {
 
         SecurityContext ctx = SecurityContextHolder.getContext();
         ctx.setAuthentication(token);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 매개변수 username : 사용자 로그인을 시도했을 시, 그 id 가 들어옴
+        // loadUserByUsername(유저네임) : 유저네임을 가지고 유저 정보를 조회할 때 호출될 메서드
+        // '어떻게 유저 정보를 가지고 올 지'를 작성하면 됨.
+        // 우리는? Member DB에서 유저정보를 꺼내야하므로.. MemberRepository 가 사용됨.
+        // 주의! 없는 유저의 경우 반드시 UsernameNotFoundException 예외를 발생시켜야 함. (return null 하면 안됨)
+        // 유저가 있다면? 유저 정보를 UserDetails 객체에 담아서 return 해줘야 한다.
+        Optional<Member> optional = memberRepository.findByEmail(username);
+        if(optional.isEmpty()){
+            log.info("없는 이메일로 로그인 시도.");
+            throw new UsernameNotFoundException(username);
+        }
+
+        log.info("있는 이메일로 로그인 시도");
+        return new MemberUser(optional.get());
+
+//        Member member = optional.get();
+//        User user = new User(
+//                member.getEmail(),
+//                member.getPassword(),
+//                List.of(new SimpleGrantedAuthority(member.getType().name()))
+//        );
+//        return user;
+
     }
 }

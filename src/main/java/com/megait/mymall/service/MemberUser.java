@@ -14,9 +14,9 @@ public class MemberUser extends User {
 
     public MemberUser(Member member){
         super(
-                member.getEmail(),
-                member.getPassword(),
-                List.of(new SimpleGrantedAuthority(member.getType().name()))
+                member.getEmail(), // User의 username 필드
+                member.getPassword(), // User의 password 필드
+                List.of(new SimpleGrantedAuthority(member.getType().name())) // User Authorities 필드
         );
 
         this.member = member;

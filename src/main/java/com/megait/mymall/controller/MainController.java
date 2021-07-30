@@ -41,7 +41,7 @@ public class MainController {
     @RequestMapping("/")
     public String index(@AuthenticationMember Member member, Model model) {
         if(member != null){
-            model.addAttribute(member.getEmail());
+            model.addAttribute(member);
         }
         return "index";
     }
@@ -92,5 +92,10 @@ public class MainController {
         model.addAttribute("email", member.getEmail());
         member.completeSignUp();
         return "member/checked-email";
+    }
+
+    @GetMapping("/login")
+    public String login(){
+        return "member/login";
     }
 }

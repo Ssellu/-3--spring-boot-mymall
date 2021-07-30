@@ -47,7 +47,6 @@ public class Member {
 //  디비 변경을 해야 한다면 그 메서드에 @Transactional 선언.
 //  (spring-data-jpa)
 //  import org.springframework.transaction.annotation.Transactional
-    @Transactional
     public void generateEmailCheckToken(){
         emailCheckToken = UUID.randomUUID().toString();
     }

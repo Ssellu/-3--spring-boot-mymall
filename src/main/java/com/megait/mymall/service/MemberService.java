@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +34,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final ConsoleMailSender consoleMailSender;
+
+    private final EmailService emailService;
 
     public Member processNewMember(SignUpForm signUpForm) {
 
@@ -53,42 +57,23 @@ public class MemberService {
         Member newMember = memberRepository.save(member);
 
         // 회원 인증 이메일 전송
-        sendEmail(newMember);
+        emailService.sendEmail(newMember);
 
         // 새로 추가된 회원 (Member 엔티티)를 return
         return newMember;
     }
 
-    private void sendEmail(Member member) {
-        member.generateEmailCheckToken();
-        String url = "http://127.0.0.1:8080/email-check-token?token="
-                + member.getEmailCheckToken() + "&email=" + member.getEmail();
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(member.getEmail());
-        message.setFrom("admin@mymall.com");
-        message.setSubject("[mymall] 회원가입 이메일 인증 링크입니다.");
-        message.setText("다음 링크를 클릭해주세요. =>" + url);
-        consoleMailSender.send(message);
-    }
-
     public void login(Member member) {
+        MemberUser memberUser = new MemberUser(member);
 
-        Collection<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority(member.getType().name()));
-
-        // "ROLE_USER" , "ROLE_ADMIN", "ROLE_WRITER"
-        // authorities : { new SGA("ROLE_USER"), new SGA("ROLE_ADMIN"), new SGA("ROLE_WRITER") }
-
-        // Username(=principal) 과 Password(=credencial) 를 가지고
-        // 스프링 시큐리티에게 인증을 요청할 때 사용하는 token
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
-                        /*username*/ member.getEmail(),
-                        /*password*/ member.getPassword(),
-                        /*authorities*/ authorities);
+                        memberUser,
+                        memberUser.getMember().getPassword(),
+                        memberUser.getAuthorities()
+                );
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(token);
-
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
     }
 }

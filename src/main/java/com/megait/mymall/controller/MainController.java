@@ -8,6 +8,7 @@ import com.megait.mymall.validation.SignUpFormValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import javax.validation.Validator;
+import java.security.Principal;
 import java.util.Optional;
 
 @Controller
@@ -37,7 +39,10 @@ public class MainController {
     }
 
     @RequestMapping("/")
-    public String index(){
+    public String index(@AuthenticationMember Member member, Model model) {
+        if(member != null){
+            model.addAttribute(member.getEmail());
+        }
         return "index";
     }
 

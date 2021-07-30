@@ -72,20 +72,25 @@ public class MainController {
 
     @GetMapping("/email-check-token")
     @Transactional
-    public String emailCheckToken(String token, String email){
+    public String emailCheckToken(String token, String email, Model model){
         Optional<Member> optional = memberRepository.findByEmail(email);
         if(optional.isEmpty()){
-            log.info("Email does not exist.");
-            return "redirect:/";
+//            log.info("Email does not exist.");
+//            return "redirect:/";
+            model.addAttribute("error", "wrong.email");
+            return "member/checked-email";
         }
 
         Member member = optional.get();
-        if(!token.equals(member.getEmailCheckToken())){
-            log.info("Token does not match.");
-            return "redirect:/";
+        if(!member.isValidToken(token)){
+//            log.info("Token does not match.");
+//            return "redirect:/";
+            model.addAttribute("error", "wrong.token");
+            return "member/checked-email";
         }
-        log.info("Success!");
-        member.setEmailVerified(true);
-        return "redirect:/";
+        // log.info("Success!");
+        model.addAttribute("email", member.getEmail());
+        member.completeSignUp();
+        return "member/checked-email";
     }
 }

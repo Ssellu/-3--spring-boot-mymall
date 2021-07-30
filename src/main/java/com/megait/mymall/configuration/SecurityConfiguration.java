@@ -32,7 +32,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin()
                 .loginPage("/login")  // 안해도 기본값이 이미 '/login'임
-                .defaultSuccessUrl("/", true);
+                .defaultSuccessUrl("/", true)
+
+                .and()
+                .logout()
+                .logoutUrl("/logout") // 안해도 기본값이 이미 '/logout'임
+                .invalidateHttpSession(true)
+                .logoutSuccessUrl("/");
+
     }
 
     @Override

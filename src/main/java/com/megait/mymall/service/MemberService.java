@@ -105,6 +105,5 @@ public class MemberService implements UserDetailsService {
 //                List.of(new SimpleGrantedAuthority(member.getType().name()))
 //        );
 //        return user;
-
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.persistence.Entity;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;

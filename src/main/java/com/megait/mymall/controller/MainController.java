@@ -2,6 +2,7 @@ package com.megait.mymall.controller;
 
 import com.megait.mymall.domain.Member;
 import com.megait.mymall.repository.MemberRepository;
+import com.megait.mymall.service.OrderService;
 import com.megait.mymall.validation.SignUpForm;
 import com.megait.mymall.service.MemberService;
 import com.megait.mymall.validation.SignUpFormValidator;
@@ -32,7 +33,10 @@ import java.util.Optional;
 public class MainController {
 
     private final MemberService memberService;
+
     private final MemberRepository memberRepository;
+
+    private final OrderService orderService;
 
     @InitBinder("signUpForm")
     protected void initBinder(WebDataBinder binder){

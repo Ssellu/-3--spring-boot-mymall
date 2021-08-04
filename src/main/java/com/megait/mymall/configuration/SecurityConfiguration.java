@@ -26,7 +26,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     // DataSource : DBCP (DataBase Connection Pool)
     //  spring-data-jpa 의존성이 있다면 DataSource 빈은 자동으로 IoC 컨테이너에 등록된다.
 
-    private final PersistentTokenRepository tokenRepository;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -59,7 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .rememberMe()
                     .userDetailsService(memberService)
-                    .tokenRepository(tokenRepository);
+                    .tokenRepository(tokenRepository());
 
     }
 

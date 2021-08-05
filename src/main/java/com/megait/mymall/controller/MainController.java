@@ -2,6 +2,7 @@ package com.megait.mymall.controller;
 
 import com.megait.mymall.domain.Member;
 import com.megait.mymall.repository.MemberRepository;
+import com.megait.mymall.service.ItemService;
 import com.megait.mymall.service.OrderService;
 import com.megait.mymall.validation.SignUpForm;
 import com.megait.mymall.service.MemberService;
@@ -38,6 +39,8 @@ public class MainController {
 
     private final OrderService orderService;
 
+    private final ItemService itemService;
+
     @InitBinder("signUpForm")
     protected void initBinder(WebDataBinder binder){
         binder.addValidators(new SignUpFormValidator(memberRepository));
@@ -45,6 +48,12 @@ public class MainController {
 
     @RequestMapping("/")
     public String index(@AuthenticationMember Member member, Model model) {
+
+
+        model.addAttribute("bookList", itemService.getBookList());
+        model.addAttribute("albumList", itemService.getAlbumList());
+
+
         if(member != null){
             model.addAttribute(member);
         }

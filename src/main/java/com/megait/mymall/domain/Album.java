@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 @DiscriminatorValue("al")
 @Getter @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class Album extends Item{
     private String title;
     private String artist;

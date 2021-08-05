@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class Game extends Item {
     private String title;
     private String publisher;

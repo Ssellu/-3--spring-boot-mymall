@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class Book extends Item {
     private String isbn;
 }

@@ -10,24 +10,24 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Getter @Setter
-@Builder
+@SuperBuilder // @Builder 대신
 @AllArgsConstructor @NoArgsConstructor
-public class Item {
+public abstract class Item {
     @Id @GeneratedValue
-    private Long id; // 상품 PK
+    private Long id;
 
-    private String name; // 상품명
+    private String name;
 
-    private int price; // 상품가격
+    private int price;
 
-    private int stockQuantity; // 재고량
+    private int stockQuantity;
 
     @ManyToMany
-    private List<Category> categories = new ArrayList<>(); // 소속 카테고리
+    private List<Category> categories = new ArrayList<>();
 
-    private String imageUrl; // 상품 이미지 경로
+    private String imageUrl;
 
-    private int liked;  // 찜하기 수
+    private int liked;
 
 
 }

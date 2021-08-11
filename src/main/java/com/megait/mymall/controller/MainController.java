@@ -1,5 +1,7 @@
 package com.megait.mymall.controller;
 
+import com.google.gson.JsonObject;
+import com.megait.mymall.domain.Item;
 import com.megait.mymall.domain.Member;
 import com.megait.mymall.repository.MemberRepository;
 import com.megait.mymall.service.ItemService;
@@ -17,10 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.Table;
 import javax.validation.Valid;
@@ -113,4 +112,34 @@ public class MainController {
         return "member/login";
     }
 
+    @GetMapping("/item/detail/{id}")
+    public String detail(@PathVariable Long id, Model model){
+        Item item = itemService.getItem(id);
+        model.addAttribute("item", item);
+        return "item/detail";
+    }
+
+    @ResponseBody
+    @GetMapping("/item/like/{id}")
+    public String likeItem(@AuthenticationMember Member member, @PathVariable Long id) {
+        JsonObject object = new JsonObject();
+        if(member == null){
+            object.addProperty("result", false);
+            object.addProperty("message", "로그인이 필요한 기능입니다.");
+            return object.toString();
+            // { "result" : false, "message" : "로그인이 필요한 기능입니다." }
+        }
+
+        try {
+            itemService.addLike(member, id);
+            object.addProperty("result", true);
+            object.addProperty("message", "찜 목록에 등록되었습니다.");
+
+        } catch (IllegalArgumentException e){
+            object.addProperty("result", false);
+            object.addProperty("message", e.getMessage());
+        }
+
+        return object.toString();
+    }
 }

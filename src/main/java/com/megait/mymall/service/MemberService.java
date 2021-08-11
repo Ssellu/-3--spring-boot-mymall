@@ -8,6 +8,7 @@ import com.megait.mymall.util.ConsoleMailSender;
 import com.megait.mymall.validation.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -41,6 +43,20 @@ public class MemberService implements UserDetailsService {
     private final EmailService emailService;
 
     private final PasswordEncoder passwordEncoder;
+
+    @PostConstruct
+    @Profile("local")
+    public void createNewMember(){
+        Member member = Member.builder()
+                .email("admin@test.com")
+                .password(passwordEncoder.encode("P@ssw0rd"))
+                .type(MemberType.ROLE_ADMIN)
+                .joinedAt(LocalDateTime.now())
+                .build();
+
+        Member newMember = memberRepository.save(member);
+        emailService.sendEmail(newMember);
+    }
 
     public Member processNewMember(SignUpForm signUpForm) {
 

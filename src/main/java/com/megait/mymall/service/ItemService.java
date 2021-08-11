@@ -2,8 +2,12 @@ package com.megait.mymall.service;
 
 import com.megait.mymall.domain.Album;
 import com.megait.mymall.domain.Book;
+import com.megait.mymall.domain.Item;
+import com.megait.mymall.domain.Member;
 import com.megait.mymall.repository.AlbumRepository;
 import com.megait.mymall.repository.BookRepository;
+import com.megait.mymall.repository.ItemRepository;
+import com.megait.mymall.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -15,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,8 +29,9 @@ import java.util.stream.Collectors;
 public class ItemService {
     private final BookRepository bookRepository;
     private final AlbumRepository albumRepository;
+    private final MemberRepository memberRepository;
 
-    // ItemSerivce 가 빈으로 등록 되기 위해 객체 생성(new)이 될 것임.
+    // ItemService 가 빈으로 등록 되기 위해 객체 생성(new)이 될 것임.
     // 그 객체 생성이 된 이후에 무엇을 할 지 : @PostConstruct
     @PostConstruct
     public void saveBookItems() throws IOException {
@@ -101,5 +107,45 @@ public class ItemService {
 
     public List<Album> getAlbumList() {
         return albumRepository.findAll();
+    }
+
+
+    private final ItemRepository itemRepository;
+    public Item getItem(Long id) {
+
+        // checking if the item is in album.
+        Optional<Album> optional = albumRepository.findById(id);
+        if(optional.isPresent()){
+            return optional.get();
+        }
+
+        Optional<Book> optional2 = bookRepository.findById(id);
+        return optional2.orElse(null);
+
+    }
+
+    @Transactional
+    public void addLike(Member member, Long id) {
+        Item item;
+        Optional<Album> album = albumRepository.findById(id);
+        if (album.isPresent()) {
+            item = album.get();
+        } else {
+            Optional<Book> book = bookRepository.findById(id);
+            item = book.orElseThrow(() -> new IllegalArgumentException("잘못된 상품 번호입니다."));
+        }
+
+
+        member = memberRepository.findByEmail(member.getEmail()).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("잘못된 회원입니다.");
+        }
+        List<Item> list = member.getLikes();
+
+        if (list.contains(item)) {
+            throw new IllegalArgumentException("이미 찜한 상품입니다.");
+        }
+        list.add(item);
+        item.setLiked(item.getLiked() + 1);
     }
 }

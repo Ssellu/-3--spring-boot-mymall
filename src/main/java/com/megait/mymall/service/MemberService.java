@@ -1,6 +1,7 @@
 package com.megait.mymall.service;
 
 import com.megait.mymall.domain.Address;
+import com.megait.mymall.domain.Item;
 import com.megait.mymall.domain.Member;
 import com.megait.mymall.domain.MemberType;
 import com.megait.mymall.repository.MemberRepository;
@@ -114,13 +115,12 @@ public class MemberService implements UserDetailsService {
 
         log.info("있는 이메일로 로그인 시도");
         return new MemberUser(optional.get());
+    }
 
-//        Member member = optional.get();
-//        User user = new User(
-//                member.getEmail(),
-//                member.getPassword(),
-//                List.of(new SimpleGrantedAuthority(member.getType().name()))
-//        );
-//        return user;
+    public List<Item> getLikeList(Member member) {
+        return memberRepository
+                .findById(member.getId())
+                .orElseThrow(()->new UsernameNotFoundException("Wrong Member"))
+                .getLikes();
     }
 }

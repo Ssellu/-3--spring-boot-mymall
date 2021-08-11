@@ -3,6 +3,7 @@ package com.megait.mymall.controller;
 import com.google.gson.JsonObject;
 import com.megait.mymall.domain.Item;
 import com.megait.mymall.domain.Member;
+import com.megait.mymall.domain.OrderItem;
 import com.megait.mymall.repository.MemberRepository;
 import com.megait.mymall.service.ItemService;
 import com.megait.mymall.service.OrderService;
@@ -25,7 +26,11 @@ import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.Validator;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j // log 변수
@@ -141,5 +146,49 @@ public class MainController {
         }
 
         return object.toString();
+    }
+
+    @GetMapping("/item/like-list")
+    public String likeList(@AuthenticationMember Member member, Model model){
+        List<Item> likeList = memberService.getLikeList(member);
+        model.addAttribute("likeList", likeList);
+        return "item/like_list";
+    }
+
+    @PostMapping("/cart/list")
+    public String addCart(@AuthenticationMember Member member,
+                          @RequestParam("item_id") String[] itemIds,
+                          Model model){
+
+//        Long[] arr = new Long[itemIds.length];
+//        for(int i = 0; i < arr.length; ++i){
+//            arr[i] = Long.parseLong(itemIds[i]);
+//        }
+//
+//        List<Long> list = new ArrayList<>();
+//        list.addAll(List.of(arr));
+
+        // List<Long> idList = List.of(Arrays.stream(itemIds).map(Long::parseLong).toArray(Long[]::new));
+
+        // String[] ~> List<Long>
+        List<Long> idList = Arrays.stream(itemIds).map(Long::parseLong).collect(Collectors.toList());
+
+        orderService.addCart(member, idList);
+        itemService.deleteLikes(member, idList);
+
+        return cartList(member, model);
+    }
+    @GetMapping("/cart/list")
+    public String cartList(@AuthenticationMember Member member, Model model){
+
+        try {
+            List<OrderItem> cartList = orderService.getCart(member);
+            model.addAttribute("cartList", cartList);
+            model.addAttribute("totalPrice", orderService.getTotalPrice(cartList));
+
+        } catch (IllegalStateException e){
+            model.addAttribute("error_message", e.getMessage());
+        }
+        return "cart/list";
     }
 }

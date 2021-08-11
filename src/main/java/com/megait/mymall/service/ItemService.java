@@ -30,6 +30,7 @@ public class ItemService {
     private final BookRepository bookRepository;
     private final AlbumRepository albumRepository;
     private final MemberRepository memberRepository;
+    private final ItemRepository itemRepository;
 
     // ItemService 가 빈으로 등록 되기 위해 객체 생성(new)이 될 것임.
     // 그 객체 생성이 된 이후에 무엇을 할 지 : @PostConstruct
@@ -109,8 +110,6 @@ public class ItemService {
         return albumRepository.findAll();
     }
 
-
-    private final ItemRepository itemRepository;
     public Item getItem(Long id) {
 
         // checking if the item is in album.
@@ -147,5 +146,11 @@ public class ItemService {
         }
         list.add(item);
         item.setLiked(item.getLiked() + 1);
+    }
+
+    @Transactional
+    public void deleteLikes(Member member, List<Long> idList) {
+        member = memberRepository.getById(member.getId());
+        member.getLikes().removeAll(itemRepository.findAllById(idList));
     }
 }
